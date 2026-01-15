@@ -66,3 +66,5 @@ Thumbs.db
 # Application specific
 application-local.yml
 application-dev.yml
+
+api-requests.http

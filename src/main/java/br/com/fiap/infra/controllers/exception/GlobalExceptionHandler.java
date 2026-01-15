@@ -13,19 +13,49 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.com.fiap.core.exceptions.DomainException;
 import br.com.fiap.core.exceptions.EmailInvalidoException;
+import br.com.fiap.core.exceptions.EmailJaCadastradoException;
 import br.com.fiap.core.exceptions.EnderecoInvalidoException;
 import br.com.fiap.core.exceptions.HorarioInvalidoException;
+import br.com.fiap.core.exceptions.LoginJaCadastradoException;
+import br.com.fiap.core.exceptions.SenhasNaoConferemException;
 import br.com.fiap.core.exceptions.TipoCozinhaInvalidaException;
+import br.com.fiap.core.exceptions.UsuarioNaoEncontradoException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    public ResponseEntity<ErrorResponse> handleUsuarioNaoEncontradoException(UsuarioNaoEncontradoException ex) {
+        ErrorResponse error = new ErrorResponse(
+            HttpStatus.NOT_FOUND.value(),
+            "Usuário não encontrado",
+            ex.getMessage(),
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+    
+    @ExceptionHandler({
+        EmailJaCadastradoException.class,
+        LoginJaCadastradoException.class
+    })
+    public ResponseEntity<ErrorResponse> handleDuplicateException(DomainException ex) {
+        ErrorResponse error = new ErrorResponse(
+            HttpStatus.CONFLICT.value(),
+            "Conflito de dados",
+            ex.getMessage(),
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
     
     @ExceptionHandler({
         DomainException.class,
         EmailInvalidoException.class,
         EnderecoInvalidoException.class,
         HorarioInvalidoException.class,
-        TipoCozinhaInvalidaException.class
+        TipoCozinhaInvalidaException.class,
+        SenhasNaoConferemException.class
     })
     public ResponseEntity<ErrorResponse> handleDomainException(DomainException ex) {
         ErrorResponse error = new ErrorResponse(
