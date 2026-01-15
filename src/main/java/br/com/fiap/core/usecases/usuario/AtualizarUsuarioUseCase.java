@@ -2,7 +2,9 @@ package br.com.fiap.core.usecases.usuario;
 
 import br.com.fiap.core.domain.Endereco;
 import br.com.fiap.core.domain.Usuario;
+import br.com.fiap.core.exceptions.AcessoNegadoException;
 import br.com.fiap.core.exceptions.UsuarioNaoEncontradoException;
+import br.com.fiap.core.gateways.IAuthenticationGateway;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 
 public class AtualizarUsuarioUseCase {
@@ -21,16 +23,20 @@ public class AtualizarUsuarioUseCase {
     ) {}
     
     private final IUsuarioGateway usuarioGateway;
+    private final IAuthenticationGateway authenticationGateway;
 
-    private AtualizarUsuarioUseCase(IUsuarioGateway usuarioGateway) {
+    private AtualizarUsuarioUseCase(IUsuarioGateway usuarioGateway, IAuthenticationGateway authenticationGateway) {
         this.usuarioGateway = usuarioGateway;
+        this.authenticationGateway = authenticationGateway;
     }
 
-    public static AtualizarUsuarioUseCase create(IUsuarioGateway usuarioGateway) {
-        return new AtualizarUsuarioUseCase(usuarioGateway);
+    public static AtualizarUsuarioUseCase create(IUsuarioGateway usuarioGateway, IAuthenticationGateway authenticationGateway) {
+        return new AtualizarUsuarioUseCase(usuarioGateway, authenticationGateway);
     }
 
     public Usuario execute(Long idUsuario, InputModel input) {
+        validarPermissao(idUsuario);
+        
         Usuario usuarioExistente = usuarioGateway.buscarPorId(idUsuario)
             .orElseThrow(() -> new UsuarioNaoEncontradoException(idUsuario));
         
@@ -60,5 +66,20 @@ public class AtualizarUsuarioUseCase {
         );
         
         return this.usuarioGateway.atualizar(idUsuario, usuarioAtualizado);
+    }
+    
+    private void validarPermissao(Long idUsuario) {
+        if (authenticationGateway.isAdministrador()) {
+            return;
+        }
+        
+        Usuario usuario = usuarioGateway.buscarPorId(idUsuario)
+            .orElseThrow(() -> new UsuarioNaoEncontradoException(idUsuario));
+        
+        String loginUsuarioLogado = authenticationGateway.getUsuarioLogado();
+        
+        if (!usuario.getLogin().equals(loginUsuarioLogado)) {
+            throw new AcessoNegadoException("Você só pode modificar seus próprios dados");
+        }
     }
 }

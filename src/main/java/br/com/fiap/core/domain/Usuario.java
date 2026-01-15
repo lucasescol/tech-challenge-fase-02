@@ -1,6 +1,8 @@
 package br.com.fiap.core.domain;
 
 import br.com.fiap.core.exceptions.DomainException;
+import br.com.fiap.core.exceptions.SenhaInvalidaException;
+import br.com.fiap.core.exceptions.SenhasNaoConferemException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -47,6 +49,16 @@ public class Usuario {
         }
 
         return new Usuario(id, nome.trim(), emailVO, login, senha, endereco, tipoUsuario);
+    }
+
+    public static void validarNovaSenha(String novaSenha, String confirmacaoSenha) {
+        if (novaSenha == null || novaSenha.trim().isEmpty()) {
+            throw new SenhaInvalidaException("Nova senha não pode ser vazia");
+        }
+        
+        if (!novaSenha.equals(confirmacaoSenha)) {
+            throw new SenhasNaoConferemException();
+        }
     }
 
     public enum TipoUsuario {

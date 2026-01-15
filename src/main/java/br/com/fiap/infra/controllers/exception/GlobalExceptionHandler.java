@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.com.fiap.core.exceptions.DomainException;
+import br.com.fiap.core.exceptions.AcessoNegadoException;
 import br.com.fiap.core.exceptions.EmailInvalidoException;
 import br.com.fiap.core.exceptions.EmailJaCadastradoException;
 import br.com.fiap.core.exceptions.EnderecoInvalidoException;
@@ -33,6 +34,17 @@ public class GlobalExceptionHandler {
             LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+    
+    @ExceptionHandler(AcessoNegadoException.class)
+    public ResponseEntity<ErrorResponse> handleAcessoNegadoException(AcessoNegadoException ex) {
+        ErrorResponse error = new ErrorResponse(
+            HttpStatus.FORBIDDEN.value(),
+            "Acesso negado",
+            ex.getMessage(),
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
     
     @ExceptionHandler({

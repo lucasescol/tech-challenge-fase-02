@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import br.com.fiap.core.domain.Usuario;
 import br.com.fiap.core.exceptions.EmailJaCadastradoException;
 import br.com.fiap.core.exceptions.LoginJaCadastradoException;
 import br.com.fiap.core.exceptions.UsuarioNaoEncontradoException;
-import br.com.fiap.core.exceptions.DomainException;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 import br.com.fiap.infra.mappers.UsuarioMapper;
 import br.com.fiap.infra.persistence.jpa.entities.UsuarioEntity;
@@ -20,9 +20,11 @@ import br.com.fiap.infra.persistence.jpa.repositories.UsuarioRepository;
 public class JpaUsuarioGateway implements IUsuarioGateway {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public JpaUsuarioGateway(UsuarioRepository usuarioRepository) {
+    public JpaUsuarioGateway(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -35,6 +37,8 @@ public class JpaUsuarioGateway implements IUsuarioGateway {
         }
         
         UsuarioEntity novoUsuarioEntity = UsuarioMapper.toEntity(novoUsuario);
+
+        novoUsuarioEntity.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
         UsuarioEntity savedEntity = usuarioRepository.save(novoUsuarioEntity);
         return UsuarioMapper.toDomain(savedEntity);
     }
@@ -68,17 +72,9 @@ public class JpaUsuarioGateway implements IUsuarioGateway {
     }
 
     @Override
-    public void trocarSenha(Long id, String senhaAtual, String novaSenha) {
+    public void trocarSenha(Long id, String novaSenha) {
         UsuarioEntity usuario = usuarioRepository.findById(id)
             .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
-        
-        if (!usuario.getSenha().equals(senhaAtual)) {
-            throw new DomainException("Senha atual incorreta");
-        }
-        
-        if (novaSenha == null || novaSenha.trim().isEmpty()) {
-            throw new DomainException("Nova senha não pode ser vazia");
-        }
         
         usuario.setSenha(novaSenha);
         usuarioRepository.save(usuario);
@@ -95,6 +91,12 @@ public class JpaUsuarioGateway implements IUsuarioGateway {
     @Override
     public Optional<Usuario> buscarPorId(Long id) {
         return usuarioRepository.findById(id)
+            .map(UsuarioMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Usuario> buscarPorLogin(String login) {
+        return usuarioRepository.findByLogin(login)
             .map(UsuarioMapper::toDomain);
     }
 
