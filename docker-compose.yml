@@ -1,0 +1,47 @@
+services:
+  mysql:
+    image: mysql:8.0.33
+    container_name: techchallenge-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: techchallenge
+      MYSQL_USER: techchallenge_user
+      MYSQL_PASSWORD: techchallenge_password
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'false'
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - techchallenge-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build: .
+    container_name: techchallenge-app
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/techchallenge?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: techchallenge_user
+      SPRING_DATASOURCE_PASSWORD: techchallenge_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_JPA_SHOW_SQL: 'false'
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - techchallenge-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  techchallenge-network:
+    driver: bridge

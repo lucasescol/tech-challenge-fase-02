@@ -14,8 +14,8 @@ public class Restaurante {
     private final HorarioFuncionamento horarioFuncionamento;
     private final Long donoRestaurante;
 
-    private Restaurante(Long id, String nome, Endereco endereco, TipoCozinha tipoCozinha, 
-                       HorarioFuncionamento horarioFuncionamento, Long donoRestaurante) {
+    private Restaurante(Long id, String nome, Endereco endereco, TipoCozinha tipoCozinha,
+            HorarioFuncionamento horarioFuncionamento, Long donoRestaurante) {
         this.id = id;
         this.nome = nome;
         this.endereco = endereco;
@@ -24,15 +24,15 @@ public class Restaurante {
         this.donoRestaurante = donoRestaurante;
     }
 
-    public static Restaurante create(Long id, String nome, String logradouro, String numero, 
-                                    String complemento, String bairro, String cidade, String estado, 
-                                    String cep, String tipoCozinha, String horarioFuncionamento, 
-                                    Long donoRestaurante) {
-        
+    public static Restaurante create(Long id, String nome, String logradouro, String numero,
+            String complemento, String bairro, String cidade, String estado,
+            String cep, String tipoCozinha, String horarioFuncionamento,
+            Long donoRestaurante) {
+
         if (nome == null || nome.trim().isEmpty()) {
             throw new DomainException("Nome do restaurante não pode ser vazio");
         }
-        
+
         Endereco endereco = new Endereco(logradouro, numero, complemento, bairro, cidade, estado, cep);
         TipoCozinha tipo = new TipoCozinha(tipoCozinha);
         HorarioFuncionamento horario = new HorarioFuncionamento(horarioFuncionamento);

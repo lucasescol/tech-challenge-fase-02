@@ -1,0 +1,2 @@
+INSERT INTO tipos_usuario (nome, descricao, tipo) VALUES ('CLIENTE', 'Cliente do restaurante', 'CLIENTE');
+INSERT INTO tipos_usuario (nome, descricao, tipo) VALUES ('DONO_RESTAURANTE', 'Dono de restaurante', 'DONO_RESTAURANTE');

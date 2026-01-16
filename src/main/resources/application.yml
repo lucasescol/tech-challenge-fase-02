@@ -2,33 +2,48 @@ spring:
   application:
     name: techchallenge
   
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
   datasource:
-    url: jdbc:h2:mem:test
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/techchallenge?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:techchallenge_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:techchallenge_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:20}
+      minimum-idle: ${HIKARI_MIN_IDLE:5}
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+    defer-datasource-initialization: true
+
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
   
   h2:
     console:
-      enabled: true
-      path: /h2-console
-  
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        '[format_sql]': true
+      enabled: false
+
+# JWT Configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:seu-segredo-muito-longo-e-seguro-que-deve-ter-32-caracteres-minimo-para-HS512}
+    expiration: ${JWT_EXPIRATION:86400000}
 
 server:
   port: 8080
   servlet:
     context-path: /
-
-logging:
-  level:
-    '[br.com.fiap]': DEBUG
-    '[org.springframework.web]': INFO
-    '[org.hibernate.SQL]': DEBUG

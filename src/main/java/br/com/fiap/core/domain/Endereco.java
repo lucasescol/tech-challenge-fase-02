@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class Endereco {
-    
+
     private final String logradouro;
     private final String numero;
     private final String complemento;
@@ -13,10 +13,10 @@ public class Endereco {
     private final String cidade;
     private final String estado;
     private final String cep;
-    
-    public Endereco(String logradouro, String numero, String complemento, 
-                    String bairro, String cidade, String estado, String cep) {
-        
+
+    public Endereco(String logradouro, String numero, String complemento,
+            String bairro, String cidade, String estado, String cep) {
+
         if (logradouro == null || logradouro.trim().isEmpty()) {
             throw new EnderecoInvalidoException("Logradouro não pode ser vazio");
         }
@@ -32,12 +32,12 @@ public class Endereco {
         if (cep == null || cep.trim().isEmpty()) {
             throw new EnderecoInvalidoException("CEP não pode ser vazio");
         }
-        
+
         String cepLimpo = cep.replaceAll("[^0-9]", "");
         if (cepLimpo.length() != 8) {
             throw new EnderecoInvalidoException("CEP inválido: " + cep);
         }
-        
+
         this.logradouro = logradouro.trim();
         this.numero = numero.trim();
         this.complemento = complemento != null ? complemento.trim() : "";
@@ -46,43 +46,43 @@ public class Endereco {
         this.estado = estado.trim().toUpperCase();
         this.cep = cepLimpo;
     }
-    
+
     public String getLogradouro() {
         return logradouro;
     }
-    
+
     public String getNumero() {
         return numero;
     }
-    
+
     public String getComplemento() {
         return complemento;
     }
-    
+
     public String getBairro() {
         return bairro;
     }
-    
+
     public String getCidade() {
         return cidade;
     }
-    
+
     public String getEstado() {
         return estado;
     }
-    
+
     public String getCep() {
         return formatarCep(this.cep);
     }
-    
+
     public String getCepLimpo() {
         return this.cep;
     }
-    
+
     private String formatarCep(String cep) {
         return cep.substring(0, 5) + "-" + cep.substring(5);
     }
-    
+
     public String getEnderecoCompleto() {
         StringBuilder sb = new StringBuilder();
         sb.append(logradouro).append(", ").append(numero);
@@ -96,7 +96,7 @@ public class Endereco {
         sb.append(" - CEP: ").append(getCep());
         return sb.toString();
     }
-    
+
     @Override
     public String toString() {
         return getEnderecoCompleto();

@@ -7,5 +7,5 @@ import br.com.fiap.infra.persistence.jpa.entities.RestauranteEntity;
 
 @Repository
 public interface RestauranteRepository extends JpaRepository<RestauranteEntity, Long> {
-    
+
 }
