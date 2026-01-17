@@ -1,24 +1,33 @@
--- Inserir tipos de usuário padrões
-INSERT INTO tipo_usuario (nome, descricao) VALUES ('ADMIN', 'Administrador do sistema');
-INSERT INTO tipo_usuario (nome, descricao) VALUES ('CLIENTE', 'Cliente comum do sistema');
-INSERT INTO tipo_usuario (nome, descricao) VALUES ('RESTAURANTE', 'Dono de restaurante');
+-- Inserir tipos de usuário padrões (apenas se não existirem)
+INSERT INTO tipo_usuario (nome, descricao) 
+SELECT 'ADMIN', 'Administrador do sistema' 
+WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'ADMIN');
 
--- Inserir endereço do administrador
+INSERT INTO tipo_usuario (nome, descricao) 
+SELECT 'CLIENTE', 'Cliente comum do sistema' 
+WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'CLIENTE');
+
+INSERT INTO tipo_usuario (nome, descricao) 
+SELECT 'RESTAURANTE', 'Dono de restaurante' 
+WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'RESTAURANTE');
+
+-- Inserir endereço do administrador (apenas se não existir)
 INSERT INTO enderecos (logradouro, numero, complemento, bairro, cidade, estado, cep) 
-VALUES ('Av. Paulista', '1000', 'Sala 100', 'Bela Vista', 'São Paulo', 'SP', '01310-100');
+SELECT 'Av. Paulista', '1000', 'Sala 100', 'Bela Vista', 'São Paulo', 'SP', '01310-100'
+WHERE NOT EXISTS (SELECT 1 FROM enderecos WHERE logradouro = 'Av. Paulista' AND numero = '1000');
 
--- Inserir usuário administrador padrão
+-- Inserir usuário administrador padrão (apenas se não existir)
 -- Login: admin | Senha: admin
 INSERT INTO usuarios (nome, email, login, senha, endereco_id, tipo_usuario_id, created_at, updated_at) 
-VALUES (
+SELECT 
     'Administrador', 
     'admin@sistema.com', 
     'admin', 
     '$2a$10$cQ7BCgRchAwg49pyHdI/FOA44Aaug/F.nG4EJwbqXpzxZ0Q9NjvF.',
-    1,
-    1,
+    (SELECT id FROM enderecos WHERE logradouro = 'Av. Paulista' AND numero = '1000' LIMIT 1),
+    (SELECT id FROM tipo_usuario WHERE nome = 'ADMIN' LIMIT 1),
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
-);
+WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE login = 'admin');
 
 
