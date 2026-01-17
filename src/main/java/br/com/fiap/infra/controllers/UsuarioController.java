@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.fiap.core.domain.Usuario;
 import br.com.fiap.core.usecases.usuario.AtualizarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.BuscarUsuariosPorNomeUseCase;
 import br.com.fiap.core.usecases.usuario.CadastrarUsuarioUseCase;
@@ -68,15 +67,15 @@ public class UsuarioController {
             dto.tipoUsuario()
         );
 
-        Usuario usuarioSalvo = cadastrarUsuarioUseCase.execute(input);
+        var output = cadastrarUsuarioUseCase.execute(input);
         
         UsuarioResponseDTO response = new UsuarioResponseDTO(
-            usuarioSalvo.getId(),
-            usuarioSalvo.getNome(),
-            usuarioSalvo.getEmail().getValor(),
-            usuarioSalvo.getLogin(),
-            usuarioSalvo.getEndereco().getEnderecoCompleto(),
-            usuarioSalvo.getTipoUsuario().name()
+            output.id(),
+            output.nome(),
+            output.email(),
+            output.login(),
+            output.endereco(),
+            output.tipoUsuario()
         );
         
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -100,15 +99,15 @@ public class UsuarioController {
             dto.cep()
         );
         
-        Usuario usuarioSalvo = atualizarUsuarioUseCase.execute(id, input);
+        var output = atualizarUsuarioUseCase.execute(id, input);
         
         UsuarioResponseDTO response = new UsuarioResponseDTO(
-            usuarioSalvo.getId(),
-            usuarioSalvo.getNome(),
-            usuarioSalvo.getEmail().getValor(),
-            usuarioSalvo.getLogin(),
-            usuarioSalvo.getEndereco().getEnderecoCompleto(),
-            usuarioSalvo.getTipoUsuario().name()
+            output.id(),
+            output.nome(),
+            output.email(),
+            output.login(),
+            output.endereco(),
+            output.tipoUsuario()
         );
         
         return ResponseEntity.ok(response);
@@ -139,16 +138,16 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioResponseDTO>> buscarPorNome(
             @RequestParam(required = false, defaultValue = "") String nome) {
         
-        List<Usuario> usuarios = buscarUsuariosPorNomeUseCase.execute(nome);
+        List<BuscarUsuariosPorNomeUseCase.OutputModel> outputs = buscarUsuariosPorNomeUseCase.execute(nome);
         
-        List<UsuarioResponseDTO> response = usuarios.stream()
-            .map(u -> new UsuarioResponseDTO(
-                u.getId(),
-                u.getNome(),
-                u.getEmail().getValor(),
-                u.getLogin(),
-                u.getEndereco().getEnderecoCompleto(),
-                u.getTipoUsuario().name()
+        List<UsuarioResponseDTO> response = outputs.stream()
+            .map(output -> new UsuarioResponseDTO(
+                output.id(),
+                output.nome(),
+                output.email(),
+                output.login(),
+                output.endereco(),
+                output.tipoUsuario()
             ))
             .collect(Collectors.toList());
         

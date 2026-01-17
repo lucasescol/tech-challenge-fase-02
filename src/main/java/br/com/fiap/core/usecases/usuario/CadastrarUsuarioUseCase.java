@@ -1,7 +1,11 @@
 package br.com.fiap.core.usecases.usuario;
 
 import br.com.fiap.core.domain.Endereco;
+import br.com.fiap.core.domain.TipoUsuario;
 import br.com.fiap.core.domain.Usuario;
+import br.com.fiap.core.exceptions.EmailJaCadastradoException;
+import br.com.fiap.core.exceptions.LoginJaCadastradoException;
+import br.com.fiap.core.gateways.ITipoUsuarioGateway;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 
 public class CadastrarUsuarioUseCase {
@@ -21,17 +25,36 @@ public class CadastrarUsuarioUseCase {
         String tipoUsuario
     ) {}
 
+    public record OutputModel(
+        Long id,
+        String nome,
+        String email,
+        String login,
+        String endereco,
+        String tipoUsuario
+    ) {}
+
     private final IUsuarioGateway usuarioGateway;
+    private final ITipoUsuarioGateway tipoUsuarioGateway;
 
-    private CadastrarUsuarioUseCase(IUsuarioGateway usuarioGateway) {
+    private CadastrarUsuarioUseCase(IUsuarioGateway usuarioGateway, ITipoUsuarioGateway tipoUsuarioGateway) {
         this.usuarioGateway = usuarioGateway;
+        this.tipoUsuarioGateway = tipoUsuarioGateway;
     }
 
-    public static CadastrarUsuarioUseCase create(IUsuarioGateway usuarioGateway) {
-        return new CadastrarUsuarioUseCase(usuarioGateway);
+    public static CadastrarUsuarioUseCase create(IUsuarioGateway usuarioGateway, ITipoUsuarioGateway tipoUsuarioGateway) {
+        return new CadastrarUsuarioUseCase(usuarioGateway, tipoUsuarioGateway);
     }
 
-    public Usuario execute(InputModel input) {
+    public OutputModel execute(InputModel input) {
+        if (usuarioGateway.existeLoginCadastrado(input.login(), null)) {
+            throw new LoginJaCadastradoException(input.login());
+        }
+        
+        if (usuarioGateway.existeEmailCadastrado(input.email(), null)) {
+            throw new EmailJaCadastradoException(input.email());
+        }
+        
         Endereco endereco = new Endereco(
             input.logradouro(),
             input.numero(),
@@ -41,11 +64,11 @@ public class CadastrarUsuarioUseCase {
             input.estado(),
             input.cep()
         );
-        
-        Usuario.TipoUsuario tipoUsuario = Usuario.TipoUsuario.valueOf(
-            input.tipoUsuario().toUpperCase()
-        );
-        
+
+
+        TipoUsuario tipoUsuario = tipoUsuarioGateway.obterPorNome(input.tipoUsuario().toUpperCase())
+            .orElseThrow(() -> new IllegalArgumentException("Tipo de usuário inválido"));
+
         Usuario novoUsuario = Usuario.create(
             null,
             input.nome(),
@@ -56,6 +79,15 @@ public class CadastrarUsuarioUseCase {
             tipoUsuario
         );
         
-        return this.usuarioGateway.incluir(novoUsuario);
+        Usuario usuarioSalvo = this.usuarioGateway.incluir(novoUsuario);
+
+        return new OutputModel(
+            usuarioSalvo.getId(),
+            usuarioSalvo.getNome(),
+            usuarioSalvo.getEmail().getValor(),
+            usuarioSalvo.getLogin(),
+            usuarioSalvo.getEndereco().getEnderecoCompleto(),
+            usuarioSalvo.getTipoUsuario().getNome()
+        );
     }
 }

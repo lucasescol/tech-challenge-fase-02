@@ -5,10 +5,20 @@ import org.springframework.context.annotation.Configuration;
 
 import br.com.fiap.core.gateways.IAuthenticationGateway;
 import br.com.fiap.core.gateways.IRestauranteGateway;
+import br.com.fiap.core.gateways.ITipoUsuarioGateway;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 import br.com.fiap.core.services.IPasswordHasherService;
 import br.com.fiap.core.services.ITokenService;
+import br.com.fiap.core.usecases.restaurante.AtualizarRestauranteUseCase;
 import br.com.fiap.core.usecases.restaurante.CadastrarRestauranteUseCase;
+import br.com.fiap.core.usecases.restaurante.DeletarRestauranteUseCase;
+import br.com.fiap.core.usecases.restaurante.ListarTodosRestaurantesUseCase;
+import br.com.fiap.core.usecases.restaurante.ObterRestaurantePorIdUseCase;
+import br.com.fiap.core.usecases.tipo_usuario.AtualizarTipoUsuarioUseCase;
+import br.com.fiap.core.usecases.tipo_usuario.CadastrarTipoUsuarioUseCase;
+import br.com.fiap.core.usecases.tipo_usuario.DeletarTipoUsuarioUseCase;
+import br.com.fiap.core.usecases.tipo_usuario.ListarTodosTiposUsuarioUseCase;
+import br.com.fiap.core.usecases.tipo_usuario.ObterTipoUsuarioPorIdUseCase;
 import br.com.fiap.core.usecases.usuario.AutenticarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.AtualizarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.BuscarUsuariosPorNomeUseCase;
@@ -28,8 +38,34 @@ public class UseCaseConfig {
     }
 
     @Bean
-    CadastrarUsuarioUseCase cadastrarUsuarioUseCase(IUsuarioGateway usuarioGateway) {
-        return CadastrarUsuarioUseCase.create(usuarioGateway);
+    ObterRestaurantePorIdUseCase obterRestaurantePorIdUseCase(IRestauranteGateway restauranteGateway) {
+        return ObterRestaurantePorIdUseCase.create(restauranteGateway);
+    }
+
+    @Bean
+    ListarTodosRestaurantesUseCase listarTodosRestaurantesUseCase(IRestauranteGateway restauranteGateway) {
+        return ListarTodosRestaurantesUseCase.create(restauranteGateway);
+    }
+
+    @Bean
+    AtualizarRestauranteUseCase atualizarRestauranteUseCase(
+            IRestauranteGateway restauranteGateway,
+            IAuthenticationGateway authenticationGateway,
+            IUsuarioGateway usuarioGateway) {
+        return AtualizarRestauranteUseCase.create(restauranteGateway, authenticationGateway, usuarioGateway);
+    }
+
+    @Bean
+    DeletarRestauranteUseCase deletarRestauranteUseCase(
+            IRestauranteGateway restauranteGateway,
+            IAuthenticationGateway authenticationGateway,
+            IUsuarioGateway usuarioGateway) {
+        return DeletarRestauranteUseCase.create(restauranteGateway, authenticationGateway, usuarioGateway);
+    }
+
+    @Bean
+    CadastrarUsuarioUseCase cadastrarUsuarioUseCase(IUsuarioGateway usuarioGateway, ITipoUsuarioGateway tipoUsuarioGateway) {
+        return CadastrarUsuarioUseCase.create(usuarioGateway, tipoUsuarioGateway);
     }
 
     @Bean
@@ -64,5 +100,30 @@ public class UseCaseConfig {
     @Bean
     BuscarUsuariosPorNomeUseCase buscarUsuariosPorNomeUseCase(IUsuarioGateway usuarioGateway) {
         return BuscarUsuariosPorNomeUseCase.create(usuarioGateway);
+    }
+
+    @Bean
+    CadastrarTipoUsuarioUseCase cadastrarTipoUsuarioUseCase(ITipoUsuarioGateway tipoUsuarioGateway) {
+        return CadastrarTipoUsuarioUseCase.create(tipoUsuarioGateway);
+    }
+
+    @Bean
+    ObterTipoUsuarioPorIdUseCase obterTipoUsuarioPorIdUseCase(ITipoUsuarioGateway tipoUsuarioGateway) {
+        return ObterTipoUsuarioPorIdUseCase.create(tipoUsuarioGateway);
+    }
+
+    @Bean
+    ListarTodosTiposUsuarioUseCase listarTodosTiposUsuarioUseCase(ITipoUsuarioGateway tipoUsuarioGateway) {
+        return ListarTodosTiposUsuarioUseCase.create(tipoUsuarioGateway);
+    }
+
+    @Bean
+    AtualizarTipoUsuarioUseCase atualizarTipoUsuarioUseCase(ITipoUsuarioGateway tipoUsuarioGateway) {
+        return AtualizarTipoUsuarioUseCase.create(tipoUsuarioGateway);
+    }
+
+    @Bean
+    DeletarTipoUsuarioUseCase deletarTipoUsuarioUseCase(ITipoUsuarioGateway tipoUsuarioGateway) {
+        return DeletarTipoUsuarioUseCase.create(tipoUsuarioGateway);
     }
 }

@@ -3,6 +3,8 @@ package br.com.fiap.core.usecases.usuario;
 import br.com.fiap.core.domain.Endereco;
 import br.com.fiap.core.domain.Usuario;
 import br.com.fiap.core.exceptions.AcessoNegadoException;
+import br.com.fiap.core.exceptions.EmailJaCadastradoException;
+import br.com.fiap.core.exceptions.LoginJaCadastradoException;
 import br.com.fiap.core.exceptions.UsuarioNaoEncontradoException;
 import br.com.fiap.core.gateways.IAuthenticationGateway;
 import br.com.fiap.core.gateways.IUsuarioGateway;
@@ -21,6 +23,15 @@ public class AtualizarUsuarioUseCase {
         String estado,
         String cep
     ) {}
+
+    public record OutputModel(
+        Long id,
+        String nome,
+        String email,
+        String login,
+        String endereco,
+        String tipoUsuario
+    ) {}
     
     private final IUsuarioGateway usuarioGateway;
     private final IAuthenticationGateway authenticationGateway;
@@ -34,7 +45,7 @@ public class AtualizarUsuarioUseCase {
         return new AtualizarUsuarioUseCase(usuarioGateway, authenticationGateway);
     }
 
-    public Usuario execute(Long idUsuario, InputModel input) {
+    public OutputModel execute(Long idUsuario, InputModel input) {
         validarPermissao(idUsuario);
         
         Usuario usuarioExistente = usuarioGateway.buscarPorId(idUsuario)
@@ -43,6 +54,18 @@ public class AtualizarUsuarioUseCase {
         String nomeAtualizado = input.nome() != null ? input.nome() : usuarioExistente.getNome();
         String emailAtualizado = input.email() != null ? input.email() : usuarioExistente.getEmail().getValor();
         String loginAtualizado = input.login() != null ? input.login() : usuarioExistente.getLogin();
+        
+        if (input.login() != null && !input.login().equals(usuarioExistente.getLogin())) {
+            if (usuarioGateway.existeLoginCadastrado(input.login(), idUsuario)) {
+                throw new LoginJaCadastradoException(input.login());
+            }
+        }
+        
+        if (input.email() != null && !input.email().equals(usuarioExistente.getEmail().getValor())) {
+            if (usuarioGateway.existeEmailCadastrado(input.email(), idUsuario)) {
+                throw new EmailJaCadastradoException(input.email());
+            }
+        }
         
         Endereco enderecoExistente = usuarioExistente.getEndereco();
         Endereco enderecoAtualizado = new Endereco(
@@ -65,7 +88,16 @@ public class AtualizarUsuarioUseCase {
             usuarioExistente.getTipoUsuario()
         );
         
-        return this.usuarioGateway.atualizar(idUsuario, usuarioAtualizado);
+        Usuario usuarioSalvo = this.usuarioGateway.atualizar(idUsuario, usuarioAtualizado);
+
+        return new OutputModel(
+            usuarioSalvo.getId(),
+            usuarioSalvo.getNome(),
+            usuarioSalvo.getEmail().getValor(),
+            usuarioSalvo.getLogin(),
+            usuarioSalvo.getEndereco().getEnderecoCompleto(),
+            usuarioSalvo.getTipoUsuario().getNome()
+        );
     }
     
     private void validarPermissao(Long idUsuario) {

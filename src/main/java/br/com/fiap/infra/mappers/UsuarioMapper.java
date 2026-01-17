@@ -1,8 +1,10 @@
 package br.com.fiap.infra.mappers;
 
 import br.com.fiap.core.domain.Endereco;
+import br.com.fiap.core.domain.TipoUsuario;
 import br.com.fiap.core.domain.Usuario;
 import br.com.fiap.infra.persistence.jpa.entities.EnderecoEntity;
+import br.com.fiap.infra.persistence.jpa.entities.TipoUsuarioEntity;
 import br.com.fiap.infra.persistence.jpa.entities.UsuarioEntity;
 
 public class UsuarioMapper {
@@ -20,7 +22,7 @@ public class UsuarioMapper {
             endEntity.getCep()
         );
         
-        Usuario.TipoUsuario tipoUsuario = Usuario.TipoUsuario.valueOf(entity.getTipoUsuario().name());
+        TipoUsuario tipoUsuario = TipoUsuarioMapper.toDomain(entity.getTipoUsuario());
         
         return Usuario.create(
             entity.getId(),
@@ -47,7 +49,7 @@ public class UsuarioMapper {
             endereco.getCepLimpo()
         );
         
-        UsuarioEntity.TipoUsuario tipoUsuario = UsuarioEntity.TipoUsuario.valueOf(domain.getTipoUsuario().name());
+        TipoUsuarioEntity tipoUsuario = TipoUsuarioMapper.toEntity(domain.getTipoUsuario());
         
         return new UsuarioEntity(
             domain.getId(),

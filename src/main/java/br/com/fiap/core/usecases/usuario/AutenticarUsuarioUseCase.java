@@ -1,6 +1,7 @@
 package br.com.fiap.core.usecases.usuario;
 
 import br.com.fiap.core.domain.Usuario;
+import br.com.fiap.core.exceptions.DomainException;
 import br.com.fiap.core.exceptions.SenhaAtualIncorretaException;
 import br.com.fiap.core.exceptions.UsuarioNaoEncontradoException;
 import br.com.fiap.core.gateways.IUsuarioGateway;
@@ -42,6 +43,14 @@ public class AutenticarUsuarioUseCase {
     }
 
     public OutputModel execute(InputModel input) {
+        if (input.login() == null || input.login().trim().isEmpty()) {
+            throw new DomainException("Login não pode ser vazio");
+        }
+        
+        if (input.senha() == null || input.senha().trim().isEmpty()) {
+            throw new DomainException("Senha não pode ser vazia");
+        }
+        
         Usuario usuario = usuarioGateway.buscarPorLogin(input.login())
             .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
 
@@ -49,7 +58,7 @@ public class AutenticarUsuarioUseCase {
             throw new SenhaAtualIncorretaException();
         }
 
-        String token = tokenService.generateToken(usuario.getLogin(), usuario.getTipoUsuario().name());
+        String token = tokenService.generateToken(usuario.getLogin(), usuario.getTipoUsuario().getNome());
 
         return new OutputModel(
             token,
@@ -57,7 +66,7 @@ public class AutenticarUsuarioUseCase {
             usuario.getLogin(),
             usuario.getNome(),
             usuario.getEmail().getValor(),
-            usuario.getTipoUsuario().name()
+            usuario.getTipoUsuario().getNome()
         );
     }
 }

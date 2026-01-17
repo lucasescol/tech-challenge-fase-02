@@ -1,8 +1,8 @@
 package br.com.fiap.core.usecases.usuario;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import br.com.fiap.core.domain.Usuario;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 
 public class BuscarUsuariosPorNomeUseCase {
@@ -16,7 +16,26 @@ public class BuscarUsuariosPorNomeUseCase {
         return new BuscarUsuariosPorNomeUseCase(usuarioGateway);
     }
 
-    public List<Usuario> execute(String nome) {
-        return this.usuarioGateway.buscarPorNome(nome);
+    public List<OutputModel> execute(String nome) {
+        return this.usuarioGateway.buscarPorNome(nome)
+                .stream()
+                .map(usuario -> new OutputModel(
+                    usuario.getId(),
+                    usuario.getNome(),
+                    usuario.getEmail().getValor(),
+                    usuario.getLogin(),
+                    usuario.getEndereco().getEnderecoCompleto(),
+                    usuario.getTipoUsuario().getNome()
+                ))
+                .collect(Collectors.toList());
     }
+
+    public record OutputModel(
+        Long id,
+        String nome,
+        String email,
+        String login,
+        String endereco,
+        String tipoUsuario
+    ) {}
 }

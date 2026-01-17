@@ -25,6 +25,14 @@ public class CadastrarRestauranteUseCase {
         String horarioFuncionamento
     ) {}
 
+    public record OutputModel(
+        Long id,
+        String nome,
+        String endereco,
+        String tipoCozinha,
+        String horarioFuncionamento
+    ) {}
+
     private CadastrarRestauranteUseCase(IRestauranteGateway restauranteGateway, IAuthenticationGateway authenticationGateway, IUsuarioGateway usuarioGateway) {
         this.restauranteGateway = restauranteGateway;
         this.authenticationGateway = authenticationGateway;
@@ -35,7 +43,7 @@ public class CadastrarRestauranteUseCase {
         return new CadastrarRestauranteUseCase(restauranteGateway, authenticationGateway, usuarioGateway);
     }
 
-    public Restaurante execute(InputModel input) {
+    public OutputModel execute(InputModel input) {
         validarPermissao();
         
         String loginUsuarioLogado = authenticationGateway.getUsuarioLogado();
@@ -56,7 +64,16 @@ public class CadastrarRestauranteUseCase {
             input.horarioFuncionamento(),
             usuarioLogado.getId()
         );
-        return this.restauranteGateway.incluir(novoRestaurante);
+
+        Restaurante restauranteSalvo = this.restauranteGateway.incluir(novoRestaurante);
+
+        return new OutputModel(
+            restauranteSalvo.getId(),
+            restauranteSalvo.getNome(),
+            restauranteSalvo.getEndereco().getEnderecoCompleto(),
+            restauranteSalvo.getTipoCozinha().getValor(),
+            restauranteSalvo.getHorarioFuncionamento().getValor()
+        );
     }
     
     private void validarPermissao() {

@@ -33,10 +33,23 @@ public class Restaurante {
             throw new DomainException("Nome do restaurante não pode ser vazio");
         }
         
+        String nomeTrimmed = nome.trim();
+        if (nomeTrimmed.length() < 3) {
+            throw new DomainException("Nome do restaurante deve ter no mínimo 3 caracteres");
+        }
+        
+        if (nomeTrimmed.length() > 100) {
+            throw new DomainException("Nome do restaurante deve ter no máximo 100 caracteres");
+        }
+        
+        if (donoRestaurante == null || donoRestaurante <= 0) {
+            throw new DomainException("ID do dono do restaurante é obrigatório e deve ser maior que zero");
+        }
+        
         Endereco endereco = new Endereco(logradouro, numero, complemento, bairro, cidade, estado, cep);
         TipoCozinha tipo = new TipoCozinha(tipoCozinha);
         HorarioFuncionamento horario = new HorarioFuncionamento(horarioFuncionamento);
 
-        return new Restaurante(id, nome.trim(), endereco, tipo, horario, donoRestaurante);
+        return new Restaurante(id, nomeTrimmed, endereco, tipo, horario, donoRestaurante);
     }
 }

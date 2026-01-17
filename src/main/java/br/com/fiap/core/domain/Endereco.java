@@ -3,8 +3,17 @@ package br.com.fiap.core.domain;
 import br.com.fiap.core.exceptions.EnderecoInvalidoException;
 import lombok.EqualsAndHashCode;
 
+import java.util.Arrays;
+import java.util.List;
+
 @EqualsAndHashCode
 public class Endereco {
+    
+    private static final List<String> UFS_VALIDAS = Arrays.asList(
+        "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+        "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+        "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+    );
     
     private final String logradouro;
     private final String numero;
@@ -29,6 +38,12 @@ public class Endereco {
         if (estado == null || estado.trim().isEmpty()) {
             throw new EnderecoInvalidoException("Estado não pode ser vazio");
         }
+        
+        String estadoNormalizado = estado.trim().toUpperCase();
+        if (!UFS_VALIDAS.contains(estadoNormalizado)) {
+            throw new EnderecoInvalidoException("Estado inválido: " + estado + ". Informe uma UF válida (ex: SP, RJ, MG)");
+        }
+        
         if (cep == null || cep.trim().isEmpty()) {
             throw new EnderecoInvalidoException("CEP não pode ser vazio");
         }
@@ -43,7 +58,7 @@ public class Endereco {
         this.complemento = complemento != null ? complemento.trim() : "";
         this.bairro = bairro != null ? bairro.trim() : "";
         this.cidade = cidade.trim();
-        this.estado = estado.trim().toUpperCase();
+        this.estado = estadoNormalizado;
         this.cep = cepLimpo;
     }
     

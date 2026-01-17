@@ -5,12 +5,11 @@ import java.time.LocalDateTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -40,23 +39,17 @@ public class UsuarioEntity {
     @JoinColumn(name = "endereco_id", referencedColumnName = "id")
     private EnderecoEntity endereco;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoUsuario tipoUsuario;
+    @ManyToOne
+    @JoinColumn(name = "tipo_usuario_id", referencedColumnName = "id")
+    private TipoUsuarioEntity tipoUsuario;
     
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
-    public enum TipoUsuario {
-        DONO_RESTAURANTE,
-        CLIENTE,
-        ADMINISTRADOR
-    }
 
     public UsuarioEntity() {}
 
     public UsuarioEntity(Long id, String nome, String email, String login, String senha, 
-                        EnderecoEntity endereco, TipoUsuario tipoUsuario, 
+                        EnderecoEntity endereco, TipoUsuarioEntity tipoUsuario, 
                         LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.nome = nome;
@@ -128,11 +121,11 @@ public class UsuarioEntity {
         this.endereco = endereco;
     }
 
-    public TipoUsuario getTipoUsuario() {
+    public TipoUsuarioEntity getTipoUsuario() {
         return tipoUsuario;
     }
 
-    public void setTipoUsuario(TipoUsuario tipoUsuario) {
+    public void setTipoUsuario(TipoUsuarioEntity tipoUsuario) {
         this.tipoUsuario = tipoUsuario;
     }
 
