@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.fiap.core.usecases.usuario.AssociarTipoDoUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.AtualizarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.BuscarUsuariosPorNomeUseCase;
 import br.com.fiap.core.usecases.usuario.CadastrarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.ExcluirUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.ListarTodosUsuariosUseCase;
 import br.com.fiap.core.usecases.usuario.TrocarSenhaUseCase;
+import br.com.fiap.infra.dto.AssociarTipoDoUsuarioDTO;
 import br.com.fiap.infra.dto.AtualizarUsuarioDTO;
 import br.com.fiap.infra.dto.NovoUsuarioDTO;
 import br.com.fiap.infra.dto.TrocarSenhaDTO;
@@ -43,6 +45,7 @@ public class UsuarioController {
     
     private final CadastrarUsuarioUseCase cadastrarUsuarioUseCase;
     private final AtualizarUsuarioUseCase atualizarUsuarioUseCase;
+    private final AssociarTipoDoUsuarioUseCase associarTipoDoUsuarioUseCase;
     private final ExcluirUsuarioUseCase excluirUsuarioUseCase;
     private final TrocarSenhaUseCase trocarSenhaUseCase;
     private final BuscarUsuariosPorNomeUseCase buscarUsuariosPorNomeUseCase;
@@ -51,12 +54,14 @@ public class UsuarioController {
     public UsuarioController(
             CadastrarUsuarioUseCase cadastrarUsuarioUseCase,
             AtualizarUsuarioUseCase atualizarUsuarioUseCase,
+            AssociarTipoDoUsuarioUseCase associarTipoDoUsuarioUseCase,
             ExcluirUsuarioUseCase excluirUsuarioUseCase,
             TrocarSenhaUseCase trocarSenhaUseCase,
             BuscarUsuariosPorNomeUseCase buscarUsuariosPorNomeUseCase,
             ListarTodosUsuariosUseCase listarTodosUsuariosUseCase) {
         this.cadastrarUsuarioUseCase = cadastrarUsuarioUseCase;
         this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
+        this.associarTipoDoUsuarioUseCase = associarTipoDoUsuarioUseCase;
         this.excluirUsuarioUseCase = excluirUsuarioUseCase;
         this.trocarSenhaUseCase = trocarSenhaUseCase;
         this.buscarUsuariosPorNomeUseCase = buscarUsuariosPorNomeUseCase;
@@ -208,20 +213,18 @@ public class UsuarioController {
     @GetMapping
     @SecurityRequirement(name = "bearer-jwt")
     @Operation(
-        summary = "Buscar usuários por nome",
+        summary = "Listar todos os usuários",
         description = "**Requer autenticação JWT**\n\n" +
-                "Retorna uma lista de usuários filtrados por nome (busca parcial, case-insensitive). Se nenhum nome for informado, retorna todos os usuários."
+                "Retorna a lista completa de todos os usuários cadastrados no sistema."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso"),
         @ApiResponse(responseCode = "401", description = "Não autenticado",
             content = @Content)
     })
-    public ResponseEntity<List<UsuarioResponseDTO>> buscarPorNome(
-            @Parameter(description = "Nome ou parte do nome do usuário (opcional)", example = "João")
-            @RequestParam(required = false, defaultValue = "") String nome) {
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         
-        List<BuscarUsuariosPorNomeUseCase.OutputModel> outputs = buscarUsuariosPorNomeUseCase.execute(nome);
+        List<ListarTodosUsuariosUseCase.OutputModel> outputs = listarTodosUsuariosUseCase.execute();
         
         List<UsuarioResponseDTO> response = outputs.stream()
             .map(output -> new UsuarioResponseDTO(
@@ -237,21 +240,63 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/todos")
+    @PatchMapping("/{id}/tipo")
     @SecurityRequirement(name = "bearer-jwt")
     @Operation(
-        summary = "Listar todos os usuários",
+        summary = "Associar tipo do usuário",
+        description = "**Requer autenticação JWT de ADMINISTRADOR**\n\n" +
+                "Atualiza o tipo (perfil) de um usuário. Esta operação é restrita a administradores."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tipo do usuário atualizado com sucesso",
+            content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Usuário ou tipo de usuário não encontrado",
+            content = @Content),
+        @ApiResponse(responseCode = "400", description = "Tipo de usuário inválido",
+            content = @Content),
+        @ApiResponse(responseCode = "401", description = "Não autenticado",
+            content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão - apenas administradores",
+            content = @Content)
+    })
+    public ResponseEntity<UsuarioResponseDTO> associarTipo(
+            @Parameter(description = "ID do usuário", required = true, example = "1")
+            @PathVariable Long id,
+            @Parameter(description = "Novo tipo do usuário", required = true)
+            @Validated @RequestBody AssociarTipoDoUsuarioDTO dto) {
+        
+        var input = new AssociarTipoDoUsuarioUseCase.InputModel(dto.tipoUsuario());
+        var output = associarTipoDoUsuarioUseCase.execute(id, input);
+        
+        UsuarioResponseDTO response = new UsuarioResponseDTO(
+            output.id(),
+            output.nome(),
+            output.email(),
+            output.login(),
+            null,
+            output.tipoUsuario()
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    @SecurityRequirement(name = "bearer-jwt")
+    @Operation(
+        summary = "Buscar usuários por nome",
         description = "**Requer autenticação JWT**\n\n" +
-                "Retorna a lista completa de todos os usuários cadastrados no sistema."
+                "Retorna uma lista de usuários filtrados por nome (busca parcial, case-insensitive)."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso"),
         @ApiResponse(responseCode = "401", description = "Não autenticado",
             content = @Content)
     })
-    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
+    public ResponseEntity<List<UsuarioResponseDTO>> buscarPorNome(
+            @Parameter(description = "Nome ou parte do nome do usuário", required = true, example = "João")
+            @RequestParam String nome) {
         
-        List<ListarTodosUsuariosUseCase.OutputModel> outputs = listarTodosUsuariosUseCase.execute();
+        List<BuscarUsuariosPorNomeUseCase.OutputModel> outputs = buscarUsuariosPorNomeUseCase.execute(nome);
         
         List<UsuarioResponseDTO> response = outputs.stream()
             .map(output -> new UsuarioResponseDTO(

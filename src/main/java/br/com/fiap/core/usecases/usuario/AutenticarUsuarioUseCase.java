@@ -1,9 +1,8 @@
 package br.com.fiap.core.usecases.usuario;
 
 import br.com.fiap.core.domain.Usuario;
-import br.com.fiap.core.exceptions.DomainException;
-import br.com.fiap.core.exceptions.SenhaAtualIncorretaException;
-import br.com.fiap.core.exceptions.UsuarioNaoEncontradoException;
+import br.com.fiap.core.exceptions.CampoObrigatorioException;
+import br.com.fiap.core.exceptions.CredenciaisInvalidasException;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 import br.com.fiap.core.services.IPasswordHasherService;
 import br.com.fiap.core.services.ITokenService;
@@ -44,18 +43,18 @@ public class AutenticarUsuarioUseCase {
 
     public OutputModel execute(InputModel input) {
         if (input.login() == null || input.login().trim().isEmpty()) {
-            throw new DomainException("Login não pode ser vazio");
+            throw new CampoObrigatorioException("Login");
         }
         
         if (input.senha() == null || input.senha().trim().isEmpty()) {
-            throw new DomainException("Senha não pode ser vazia");
+            throw new CampoObrigatorioException("Senha");
         }
         
         Usuario usuario = usuarioGateway.buscarPorLogin(input.login())
-            .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
+            .orElseThrow(CredenciaisInvalidasException::new);
 
         if (!passwordHasherService.matches(input.senha(), usuario.getSenha())) {
-            throw new SenhaAtualIncorretaException();
+            throw new CredenciaisInvalidasException();
         }
 
         String token = tokenService.generateToken(usuario.getLogin(), usuario.getTipoUsuario().getNome());

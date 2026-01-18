@@ -1,0 +1,1668 @@
+{
+	"info": {
+		"_postman_id": "tech-challenge-fase-02",
+		"name": "Tech Challenge Fase 02 - Complete Tests",
+		"description": "Collection completa de testes para a API do Tech Challenge Fase 02 com testes automatizados e rollback",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Setup - Login Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login realizado com sucesso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Token JWT retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.token).to.be.a('string');",
+							"    pm.collectionVariables.set(\"token\", jsonData.token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"login\": \"admin\",\n  \"senha\": \"admin\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Tipos de Usuário - Criar Fornecedor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Tipo de usuário criado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do tipo retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"tipoUsuarioId\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Fornecedor\",\n  \"descricao\": \"Usuário fornecedor do sistema\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/tipos-usuario",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"tipos-usuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Tipos de Usuário - Listar Todos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Lista de tipos retornada\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"    pm.expect(jsonData.length).to.be.at.least(3);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/tipos-usuario",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"tipos-usuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Tipos de Usuário - Obter por ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Tipo encontrado com sucesso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.nome).to.equal(\"Fornecedor\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/tipos-usuario/{{tipoUsuarioId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"tipos-usuario",
+						"{{tipoUsuarioId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Tipos de Usuário - Atualizar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Tipo atualizado com sucesso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.nome).to.equal(\"Fornecedor Atualizado\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Fornecedor Atualizado\",\n  \"descricao\": \"Usuário fornecedor do sistema - Atualizado\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/tipos-usuario/{{tipoUsuarioId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"tipos-usuario",
+						"{{tipoUsuarioId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6. Usuários - Cadastrar João Silva",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Usuário cadastrado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do usuário retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"usuarioId\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"João Silva\",\n  \"email\": \"joao.silva@email.com\",\n  \"login\": \"joao.silva\",\n  \"senha\": \"Senha@123\",\n  \"logradouro\": \"Rua das Flores\",\n  \"numero\": \"123\",\n  \"complemento\": \"Apto 101\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01234-567\",\n  \"tipoUsuario\": \"CLIENTE\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Usuários - Cadastrar Maria Santos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Usuário cadastrado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do usuário retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"usuarioId2\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Maria Santos\",\n  \"email\": \"maria.santos@email.com\",\n  \"login\": \"maria.santos\",\n  \"senha\": \"Senha@456\",\n  \"logradouro\": \"Avenida Paulista\",\n  \"numero\": \"1000\",\n  \"complemento\": \"\",\n  \"bairro\": \"Bela Vista\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01310-100\",\n  \"tipoUsuario\": \"CLIENTE\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8. Usuários - Listar Todos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Lista de usuários retornada\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"    pm.expect(jsonData.length).to.be.at.least(2);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9. Usuários - Buscar por Nome",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Busca retornou resultados\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"    pm.expect(jsonData.length).to.be.at.least(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios/search?nome=João",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios",
+						"search"
+					],
+					"query": [
+						{
+							"key": "nome",
+							"value": "João"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10. Usuários - Atualizar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Usuário atualizado com sucesso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.nome).to.equal(\"João Silva Santos\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"João Silva Santos\",\n  \"email\": \"joao.silva.santos@email.com\",\n  \"login\": \"joao.silva.santos\",\n  \"logradouro\": \"Rua das Flores\",\n  \"numero\": \"456\",\n  \"complemento\": \"Apto 202\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01234-567\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios/{{usuarioId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios",
+						"{{usuarioId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11. Usuários - Trocar Senha",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Senha alterada com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"senhaAtual\": \"Senha@123\",\n  \"novaSenha\": \"NovaSenha@456\",\n  \"confirmacaoSenha\": \"NovaSenha@456\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios/{{usuarioId}}/trocar-senha",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios",
+						"{{usuarioId}}",
+						"trocar-senha"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12. Restaurantes - Cadastrar Sabor Italiano",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Restaurante cadastrado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do restaurante retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"restauranteId\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Restaurante Sabor Italiano\",\n  \"logradouro\": \"Rua Augusta\",\n  \"numero\": \"500\",\n  \"complemento\": \"Loja 2\",\n  \"bairro\": \"Consolação\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01305-000\",\n  \"tipoCozinha\": \"ITALIANA\",\n  \"horarioFuncionamento\": \"11:00-23:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "13. Restaurantes - Cadastrar Cantina da Vovó",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Restaurante cadastrado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do restaurante retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"restauranteId2\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Cantina da Vovó\",\n  \"logradouro\": \"Rua da Consolação\",\n  \"numero\": \"1500\",\n  \"complemento\": \"\",\n  \"bairro\": \"Consolação\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01301-000\",\n  \"tipoCozinha\": \"BRASILEIRA\",\n  \"horarioFuncionamento\": \"11:00-22:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "14. Restaurantes - Cadastrar Sushi Master",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Restaurante cadastrado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do restaurante retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"restauranteId3\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Sushi Master\",\n  \"logradouro\": \"Avenida Paulista\",\n  \"numero\": \"2000\",\n  \"complemento\": \"3º Andar\",\n  \"bairro\": \"Bela Vista\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01310-200\",\n  \"tipoCozinha\": \"JAPONESA\",\n  \"horarioFuncionamento\": \"12:00-23:30\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "15. Restaurantes - Listar Todos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Lista de restaurantes retornada\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"    pm.expect(jsonData.length).to.be.at.least(3);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "16. Restaurantes - Obter por ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Restaurante encontrado com sucesso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.nome).to.equal(\"Restaurante Sabor Italiano\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes/{{restauranteId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes",
+						"{{restauranteId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "17. Restaurantes - Atualizar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Restaurante atualizado com sucesso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.nome).to.equal(\"Restaurante Sabor Italiano Premium\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Restaurante Sabor Italiano Premium\",\n  \"logradouro\": \"Rua Augusta\",\n  \"numero\": \"500\",\n  \"complemento\": \"Loja 2\",\n  \"bairro\": \"Consolação\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01305-000\",\n  \"tipoCozinha\": \"ITALIANA\",\n  \"horarioFuncionamento\": \"11:00-00:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes/{{restauranteId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes",
+						"{{restauranteId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "18. Cardápio - Cadastrar Pizza Margherita",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Item cadastrado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do item retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"cardapioItemId\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"restauranteId\": {{restauranteId}},\n  \"nome\": \"Pizza Margherita\",\n  \"descricao\": \"Pizza tradicional com molho de tomate, mussarela e manjericão\",\n  \"preco\": 45.90,\n  \"apenasPresencial\": false,\n  \"caminhoFoto\": \"/images/pizza-margherita.jpg\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "19. Cardápio - Cadastrar Risotto al Funghi",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Item cadastrado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do item retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"cardapioItemId2\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"restauranteId\": {{restauranteId}},\n  \"nome\": \"Risotto al Funghi\",\n  \"descricao\": \"Risoto cremoso com funghi porcini e parmesão\",\n  \"preco\": 58.00,\n  \"apenasPresencial\": true,\n  \"caminhoFoto\": \"/images/risotto-funghi.jpg\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "20. Cardápio - Cadastrar Feijoada Completa",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Item cadastrado com sucesso\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"ID do item retornado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.collectionVariables.set(\"cardapioItemId3\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"restauranteId\": {{restauranteId2}},\n  \"nome\": \"Feijoada Completa\",\n  \"descricao\": \"Feijoada com todas as carnes, acompanhamentos e farofa\",\n  \"preco\": 42.00,\n  \"apenasPresencial\": false,\n  \"caminhoFoto\": \"/images/feijoada.jpg\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "21. Cardápio - Listar Todos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Lista de itens retornada\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"    pm.expect(jsonData.length).to.be.at.least(3);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "22. Cardápio - Listar por Restaurante",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Lista de itens do restaurante retornada\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"    pm.expect(jsonData.length).to.be.at.least(2);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens/restaurante/{{restauranteId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens",
+						"restaurante",
+						"{{restauranteId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "23. Cardápio - Obter por ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Item encontrado com sucesso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.nome).to.equal(\"Pizza Margherita\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens/{{cardapioItemId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens",
+						"{{cardapioItemId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "24. Cardápio - Atualizar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Item atualizado com sucesso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.preco).to.equal(49.90);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Pizza Margherita\",\n  \"descricao\": \"Pizza tradicional com molho de tomate, mussarela e manjericão fresco\",\n  \"preco\": 49.90,\n  \"apenasPresencial\": false,\n  \"caminhoFoto\": \"/images/pizza-margherita.jpg\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens/{{cardapioItemId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens",
+						"{{cardapioItemId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "25. Testes de Erro - Login Inválido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login rejeitado com credenciais inválidas\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"login\": \"usuario.inexistente\",\n  \"senha\": \"senhaErrada\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "26. Testes de Erro - Email Inválido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Cadastro rejeitado com email inválido\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Teste Usuario\",\n  \"email\": \"emailinvalido\",\n  \"login\": \"teste.usuario\",\n  \"senha\": \"Senha@123\",\n  \"logradouro\": \"Rua Teste\",\n  \"numero\": \"100\",\n  \"complemento\": \"\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01234-567\",\n  \"tipoUsuario\": \"CLIENTE\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "27. Testes de Erro - Tipo Cozinha Inválido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Cadastro rejeitado com tipo de cozinha inválido\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Restaurante Teste\",\n  \"logradouro\": \"Rua Teste\",\n  \"numero\": \"100\",\n  \"complemento\": \"\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01234-567\",\n  \"tipoCozinha\": \"TIPO_INVALIDO\",\n  \"horarioFuncionamento\": \"11:00-23:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 1. Deletar Itens Cardápio",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Item deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens/{{cardapioItemId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens",
+						"{{cardapioItemId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 2. Deletar Itens Cardápio",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Item deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens/{{cardapioItemId2}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens",
+						"{{cardapioItemId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 3. Deletar Itens Cardápio",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Item deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/cardapio-itens/{{cardapioItemId3}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cardapio-itens",
+						"{{cardapioItemId3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 4. Deletar Restaurantes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Restaurante deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes/{{restauranteId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes",
+						"{{restauranteId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 5. Deletar Restaurantes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Restaurante deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes/{{restauranteId2}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes",
+						"{{restauranteId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 6. Deletar Restaurantes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Restaurante deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/restaurantes/{{restauranteId3}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"restaurantes",
+						"{{restauranteId3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 7. Deletar Usuários",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Usuário deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios/{{usuarioId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios",
+						"{{usuarioId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 8. Deletar Usuários",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Usuário deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios/{{usuarioId2}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios",
+						"{{usuarioId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 9. Deletar Tipo de Usuário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Tipo de usuário deletado com sucesso\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/tipos-usuario/{{tipoUsuarioId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"tipos-usuario",
+						"{{tipoUsuarioId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ROLLBACK - 10. Verificar Limpeza",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Verificação de limpeza concluída\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"console.log(\"\\n========================================\");",
+							"console.log(\"✅ ROLLBACK COMPLETO!\");",
+							"console.log(\"Todos os registros de teste foram removidos.\");",
+							"console.log(\"Banco de dados resetado ao estado inicial.\");",
+							"console.log(\"========================================\\n\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/usuarios",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tipoUsuarioId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "usuarioId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "usuarioId2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "restauranteId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "restauranteId2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "restauranteId3",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cardapioItemId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cardapioItemId2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cardapioItemId3",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

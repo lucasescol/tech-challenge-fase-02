@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import br.com.fiap.core.exceptions.AcessoNegadoException;
+import br.com.fiap.core.exceptions.CampoObrigatorioException;
+import br.com.fiap.core.exceptions.CardapioItemNaoEncontradoException;
 import br.com.fiap.core.exceptions.CredenciaisInvalidasException;
 import br.com.fiap.core.exceptions.DomainException;
 import br.com.fiap.core.exceptions.EmailInvalidoException;
@@ -21,10 +23,13 @@ import br.com.fiap.core.exceptions.EmailJaCadastradoException;
 import br.com.fiap.core.exceptions.EnderecoInvalidoException;
 import br.com.fiap.core.exceptions.HorarioInvalidoException;
 import br.com.fiap.core.exceptions.LoginJaCadastradoException;
+import br.com.fiap.core.exceptions.RestauranteComCardapioException;
+import br.com.fiap.core.exceptions.RestauranteNaoEncontradoException;
 import br.com.fiap.core.exceptions.SenhaAtualIncorretaException;
 import br.com.fiap.core.exceptions.SenhaInvalidaException;
 import br.com.fiap.core.exceptions.SenhasNaoConferemException;
 import br.com.fiap.core.exceptions.TipoCozinhaInvalidaException;
+import br.com.fiap.core.exceptions.TipoUsuarioInvalidoException;
 import br.com.fiap.core.exceptions.UsuarioNaoEncontradoException;
 
 @RestControllerAdvice
@@ -210,6 +215,81 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
         }
 
+        @ExceptionHandler(CampoObrigatorioException.class)
+        public ResponseEntity<ProblemDetail> handleCampoObrigatorioException(
+                        CampoObrigatorioException ex, WebRequest request) {
+
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage());
+
+                problem.setType(URI.create("https://api.techchallenge.com/errors/campo-obrigatorio"));
+                problem.setTitle("Campo Obrigatório");
+                problem.setInstance(URI.create(request.getDescription(false).replace("uri=", "")));
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+        }
+
+        @ExceptionHandler(TipoUsuarioInvalidoException.class)
+        public ResponseEntity<ProblemDetail> handleTipoUsuarioInvalidoException(
+                        TipoUsuarioInvalidoException ex, WebRequest request) {
+
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage());
+
+                problem.setType(URI.create("https://api.techchallenge.com/errors/tipo-usuario-invalido"));
+                problem.setTitle("Tipo de Usuário Inválido");
+                problem.setInstance(URI.create(request.getDescription(false).replace("uri=", "")));
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+        }
+
+        @ExceptionHandler(RestauranteNaoEncontradoException.class)
+        public ResponseEntity<ProblemDetail> handleRestauranteNaoEncontradoException(
+                        RestauranteNaoEncontradoException ex, WebRequest request) {
+
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                                HttpStatus.NOT_FOUND,
+                                ex.getMessage());
+
+                problem.setType(URI.create("https://api.techchallenge.com/errors/restaurante-nao-encontrado"));
+                problem.setTitle("Restaurante Não Encontrado");
+                problem.setInstance(URI.create(request.getDescription(false).replace("uri=", "")));
+
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+        }
+
+        @ExceptionHandler(CardapioItemNaoEncontradoException.class)
+        public ResponseEntity<ProblemDetail> handleCardapioItemNaoEncontradoException(
+                        CardapioItemNaoEncontradoException ex, WebRequest request) {
+
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                                HttpStatus.NOT_FOUND,
+                                ex.getMessage());
+
+                problem.setType(URI.create("https://api.techchallenge.com/errors/cardapio-item-nao-encontrado"));
+                problem.setTitle("Item do Cardápio Não Encontrado");
+                problem.setInstance(URI.create(request.getDescription(false).replace("uri=", "")));
+
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+        }
+
+        @ExceptionHandler(RestauranteComCardapioException.class)
+        public ResponseEntity<ProblemDetail> handleRestauranteComCardapioException(
+                        RestauranteComCardapioException ex, WebRequest request) {
+
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage());
+
+                problem.setType(URI.create("https://api.techchallenge.com/errors/restaurante-com-cardapio"));
+                problem.setTitle("Restaurante com Cardápio");
+                problem.setInstance(URI.create(request.getDescription(false).replace("uri=", "")));
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+        }
+
         @ExceptionHandler(DomainException.class)
         public ResponseEntity<ProblemDetail> handleDomainException(
                         DomainException ex, WebRequest request) {
@@ -230,7 +310,7 @@ public class GlobalExceptionHandler {
                         MethodArgumentNotValidException ex, WebRequest request) {
 
                 Map<String, String> errors = new HashMap<>();
-                ex.getBindingResult().getAllErrors().forEach((error) -> {
+                ex.getBindingResult().getAllErrors().forEach(error -> {
                         String fieldName = ((FieldError) error).getField();
                         String errorMessage = error.getDefaultMessage();
                         errors.put(fieldName, errorMessage);

@@ -1,7 +1,5 @@
 package br.com.fiap.infra.controllers;
 
-import br.com.fiap.core.exceptions.SenhaAtualIncorretaException;
-import br.com.fiap.core.exceptions.UsuarioNaoEncontradoException;
 import br.com.fiap.core.usecases.usuario.AutenticarUsuarioUseCase;
 import br.com.fiap.infra.dto.LoginRequestDTO;
 import br.com.fiap.infra.dto.LoginResponseDTO;
@@ -14,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,37 +31,29 @@ public class AuthController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Login realizado com sucesso",
             content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
-        @ApiResponse(responseCode = "401", description = "Credenciais inválidas (login ou senha incorretos)",
+        @ApiResponse(responseCode = "400", description = "Campos obrigatórios não preenchidos",
             content = @Content),
-        @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
+        @ApiResponse(responseCode = "401", description = "Credenciais inválidas (login ou senha incorretos)",
             content = @Content)
     })
-    public ResponseEntity<?> login(
+    public ResponseEntity<LoginResponseDTO> login(
             @Parameter(description = "Credenciais de login", required = true)
             @Valid @RequestBody LoginRequestDTO loginRequest) {
-        try {
-            AutenticarUsuarioUseCase.InputModel input = new AutenticarUsuarioUseCase.InputModel(
-                loginRequest.login(),
-                loginRequest.senha()
-            );
-            
-            AutenticarUsuarioUseCase.OutputModel resultado = autenticarUsuarioUseCase.execute(input);
+        
+        AutenticarUsuarioUseCase.InputModel input = new AutenticarUsuarioUseCase.InputModel(
+            loginRequest.login(),
+            loginRequest.senha()
+        );
+        
+        AutenticarUsuarioUseCase.OutputModel resultado = autenticarUsuarioUseCase.execute(input);
 
-            LoginResponseDTO response = new LoginResponseDTO(
-                resultado.token(),
-                resultado.tipo(),
-                resultado.login(),
-                resultado.tipoUsuario()
-            );
+        LoginResponseDTO response = new LoginResponseDTO(
+            resultado.token(),
+            resultado.tipo(),
+            resultado.login(),
+            resultado.tipoUsuario()
+        );
 
-            return ResponseEntity.ok(response);
-            
-        } catch (UsuarioNaoEncontradoException | SenhaAtualIncorretaException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Credenciais inválidas");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Erro ao processar autenticação: " + e.getMessage());
-        }
+        return ResponseEntity.ok(response);
     }
 }

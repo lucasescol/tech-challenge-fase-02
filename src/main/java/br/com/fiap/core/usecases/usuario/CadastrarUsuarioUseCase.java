@@ -5,6 +5,7 @@ import br.com.fiap.core.domain.TipoUsuario;
 import br.com.fiap.core.domain.Usuario;
 import br.com.fiap.core.exceptions.EmailJaCadastradoException;
 import br.com.fiap.core.exceptions.LoginJaCadastradoException;
+import br.com.fiap.core.exceptions.TipoUsuarioInvalidoException;
 import br.com.fiap.core.gateways.ITipoUsuarioGateway;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 
@@ -67,7 +68,7 @@ public class CadastrarUsuarioUseCase {
 
 
         TipoUsuario tipoUsuario = tipoUsuarioGateway.obterPorNome(input.tipoUsuario().toUpperCase())
-            .orElseThrow(() -> new IllegalArgumentException("Tipo de usuário inválido"));
+            .orElseThrow(() -> new TipoUsuarioInvalidoException(input.tipoUsuario()));
 
         Usuario novoUsuario = Usuario.create(
             null,

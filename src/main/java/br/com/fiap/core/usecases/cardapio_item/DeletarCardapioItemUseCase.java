@@ -1,55 +1,59 @@
-package br.com.fiap.core.usecases.restaurante;
+package br.com.fiap.core.usecases.cardapio_item;
 
 import br.com.fiap.core.domain.CardapioItem;
 import br.com.fiap.core.domain.Restaurante;
 import br.com.fiap.core.domain.Usuario;
 import br.com.fiap.core.exceptions.AcessoNegadoException;
-import br.com.fiap.core.exceptions.DomainException;
+import br.com.fiap.core.exceptions.CardapioItemNaoEncontradoException;
+import br.com.fiap.core.exceptions.RestauranteNaoEncontradoException;
 import br.com.fiap.core.gateways.IAuthenticationGateway;
 import br.com.fiap.core.gateways.ICardapioItemGateway;
 import br.com.fiap.core.gateways.IRestauranteGateway;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 
-public class CadastrarCardapioItemUseCase {
+public class DeletarCardapioItemUseCase {
 
     private final ICardapioItemGateway cardapioItemGateway;
     private final IRestauranteGateway restauranteGateway;
     private final IAuthenticationGateway authenticationGateway;
     private final IUsuarioGateway usuarioGateway;
 
-    private CadastrarCardapioItemUseCase(ICardapioItemGateway cardapioItemGateway, 
-                                         IRestauranteGateway restauranteGateway,
-                                         IAuthenticationGateway authenticationGateway,
-                                         IUsuarioGateway usuarioGateway) {
+    private DeletarCardapioItemUseCase(ICardapioItemGateway cardapioItemGateway,
+                                       IRestauranteGateway restauranteGateway,
+                                       IAuthenticationGateway authenticationGateway,
+                                       IUsuarioGateway usuarioGateway) {
         this.cardapioItemGateway = cardapioItemGateway;
         this.restauranteGateway = restauranteGateway;
         this.authenticationGateway = authenticationGateway;
         this.usuarioGateway = usuarioGateway;
     }
 
-    public static CadastrarCardapioItemUseCase create(ICardapioItemGateway cardapioItemGateway,
-                                                      IRestauranteGateway restauranteGateway,
-                                                      IAuthenticationGateway authenticationGateway,
-                                                      IUsuarioGateway usuarioGateway) {
-        return new CadastrarCardapioItemUseCase(cardapioItemGateway, restauranteGateway, authenticationGateway, usuarioGateway);
+    public static DeletarCardapioItemUseCase create(ICardapioItemGateway cardapioItemGateway,
+                                                     IRestauranteGateway restauranteGateway,
+                                                     IAuthenticationGateway authenticationGateway,
+                                                     IUsuarioGateway usuarioGateway) {
+        return new DeletarCardapioItemUseCase(cardapioItemGateway, restauranteGateway, authenticationGateway, usuarioGateway);
     }
 
-    public CardapioItem execute(CardapioItem item) {
+    public void execute(Long id) {
+        CardapioItem item = cardapioItemGateway.obterPorId(id)
+            .orElseThrow(() -> new CardapioItemNaoEncontradoException(id));
+        
         Restaurante restaurante = restauranteGateway.obterPorId(item.getRestauranteId())
-            .orElseThrow(() -> new DomainException("Restaurante não encontrado"));
+            .orElseThrow(() -> new RestauranteNaoEncontradoException(item.getRestauranteId()));
         
         validarPermissao(restaurante.getDonoRestaurante());
         
-        return cardapioItemGateway.incluir(item);
+        cardapioItemGateway.deletar(id);
     }
-    
+
     private void validarPermissao(Long donoRestauranteId) {
         if (authenticationGateway.isAdministrador()) {
             return;
         }
         
         if (!authenticationGateway.isDonoRestaurante()) {
-            throw new AcessoNegadoException("Apenas donos de restaurante podem cadastrar itens no cardápio");
+            throw new AcessoNegadoException("Apenas donos de restaurante podem deletar itens do cardápio");
         }
         
         String loginUsuarioLogado = authenticationGateway.getUsuarioLogado();
@@ -57,7 +61,7 @@ public class CadastrarCardapioItemUseCase {
             .orElseThrow(() -> new AcessoNegadoException("Usuário não encontrado"));
         
         if (!usuarioLogado.getId().equals(donoRestauranteId)) {
-            throw new AcessoNegadoException("Você só pode adicionar itens ao cardápio do seu próprio restaurante");
+            throw new AcessoNegadoException("Você só pode deletar itens do cardápio do seu próprio restaurante");
         }
     }
 }

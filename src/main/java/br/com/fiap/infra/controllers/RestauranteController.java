@@ -1,7 +1,6 @@
 package br.com.fiap.infra.controllers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -115,16 +114,15 @@ public class RestauranteController {
     public ResponseEntity<RestauranteResponseDTO> obterPorId(
             @Parameter(description = "ID do restaurante", required = true, example = "1")
             @PathVariable Long id) {
-        return obterRestaurantePorIdUseCase.execute(id)
-                .map(output -> new RestauranteResponseDTO(
-                        output.id(),
-                        output.nome(),
-                        output.endereco(),
-                        output.tipoCozinha(),
-                        output.horarioFuncionamento()
-                ))
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        var output = obterRestaurantePorIdUseCase.execute(id);
+        RestauranteResponseDTO response = new RestauranteResponseDTO(
+                output.id(),
+                output.nome(),
+                output.endereco(),
+                output.tipoCozinha(),
+                output.horarioFuncionamento()
+        );
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -147,7 +145,7 @@ public class RestauranteController {
                         output.tipoCozinha(),
                         output.horarioFuncionamento()
                 ))
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(response);
     }
@@ -207,17 +205,20 @@ public class RestauranteController {
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Restaurante deletado com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Restaurante não encontrado"),
-        @ApiResponse(responseCode = "401", description = "Não autenticado")
+        @ApiResponse(responseCode = "400", description = "Restaurante possui itens no cardápio",
+            content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão para deletar este restaurante",
+            content = @Content),
+        @ApiResponse(responseCode = "404", description = "Restaurante não encontrado",
+            content = @Content),
+        @ApiResponse(responseCode = "401", description = "Não autenticado",
+            content = @Content)
     })
     public ResponseEntity<Void> deletar(
             @Parameter(description = "ID do restaurante a ser deletado", required = true, example = "1")
             @PathVariable Long id) {
-        boolean deletado = deletarRestauranteUseCase.execute(id);
-        if (deletado) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        deletarRestauranteUseCase.execute(id);
+        return ResponseEntity.noContent().build();
     }
     
     

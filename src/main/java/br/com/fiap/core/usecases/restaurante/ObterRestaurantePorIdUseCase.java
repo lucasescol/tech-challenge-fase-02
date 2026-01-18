@@ -1,8 +1,7 @@
 package br.com.fiap.core.usecases.restaurante;
 
+import br.com.fiap.core.exceptions.RestauranteNaoEncontradoException;
 import br.com.fiap.core.gateways.IRestauranteGateway;
-
-import java.util.Optional;
 
 public class ObterRestaurantePorIdUseCase {
 
@@ -16,7 +15,7 @@ public class ObterRestaurantePorIdUseCase {
         return new ObterRestaurantePorIdUseCase(restauranteGateway);
     }
 
-    public Optional<OutputModel> execute(Long id) {
+    public OutputModel execute(Long id) {
         return restauranteGateway.obterPorId(id)
                 .map(restaurante -> new OutputModel(
                     restaurante.getId(),
@@ -24,7 +23,8 @@ public class ObterRestaurantePorIdUseCase {
                     restaurante.getEndereco().getEnderecoCompleto(),
                     restaurante.getTipoCozinha().getValor(),
                     restaurante.getHorarioFuncionamento().getValor()
-                ));
+                ))
+                .orElseThrow(() -> new RestauranteNaoEncontradoException(id));
     }
 
     public record OutputModel(

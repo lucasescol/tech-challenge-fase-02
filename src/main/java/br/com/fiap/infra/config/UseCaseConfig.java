@@ -4,11 +4,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import br.com.fiap.core.gateways.IAuthenticationGateway;
+import br.com.fiap.core.gateways.ICardapioItemGateway;
 import br.com.fiap.core.gateways.IRestauranteGateway;
 import br.com.fiap.core.gateways.ITipoUsuarioGateway;
 import br.com.fiap.core.gateways.IUsuarioGateway;
 import br.com.fiap.core.services.IPasswordHasherService;
 import br.com.fiap.core.services.ITokenService;
+import br.com.fiap.core.usecases.cardapio_item.AtualizarCardapioItemUseCase;
+import br.com.fiap.core.usecases.cardapio_item.CadastrarCardapioItemUseCase;
+import br.com.fiap.core.usecases.cardapio_item.DeletarCardapioItemUseCase;
+import br.com.fiap.core.usecases.cardapio_item.ListarCardapioItensPorRestauranteUseCase;
+import br.com.fiap.core.usecases.cardapio_item.ListarTodosCardapioItensUseCase;
+import br.com.fiap.core.usecases.cardapio_item.ObterCardapioItemPorIdUseCase;
 import br.com.fiap.core.usecases.restaurante.AtualizarRestauranteUseCase;
 import br.com.fiap.core.usecases.restaurante.CadastrarRestauranteUseCase;
 import br.com.fiap.core.usecases.restaurante.DeletarRestauranteUseCase;
@@ -20,6 +27,7 @@ import br.com.fiap.core.usecases.tipo_usuario.DeletarTipoUsuarioUseCase;
 import br.com.fiap.core.usecases.tipo_usuario.ListarTodosTiposUsuarioUseCase;
 import br.com.fiap.core.usecases.tipo_usuario.ObterTipoUsuarioPorIdUseCase;
 import br.com.fiap.core.usecases.usuario.AutenticarUsuarioUseCase;
+import br.com.fiap.core.usecases.usuario.AssociarTipoDoUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.AtualizarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.BuscarUsuariosPorNomeUseCase;
 import br.com.fiap.core.usecases.usuario.CadastrarUsuarioUseCase;
@@ -60,8 +68,51 @@ public class UseCaseConfig {
     DeletarRestauranteUseCase deletarRestauranteUseCase(
             IRestauranteGateway restauranteGateway,
             IAuthenticationGateway authenticationGateway,
+            IUsuarioGateway usuarioGateway,
+            ICardapioItemGateway cardapioItemGateway) {
+        return DeletarRestauranteUseCase.create(restauranteGateway, authenticationGateway, usuarioGateway, cardapioItemGateway);
+    }
+
+    @Bean
+    CadastrarCardapioItemUseCase cadastrarCardapioItemUseCase(
+            ICardapioItemGateway cardapioItemGateway,
+            IRestauranteGateway restauranteGateway,
+            IAuthenticationGateway authenticationGateway,
             IUsuarioGateway usuarioGateway) {
-        return DeletarRestauranteUseCase.create(restauranteGateway, authenticationGateway, usuarioGateway);
+        return CadastrarCardapioItemUseCase.create(cardapioItemGateway, restauranteGateway, authenticationGateway, usuarioGateway);
+    }
+
+    @Bean
+    ObterCardapioItemPorIdUseCase obterCardapioItemPorIdUseCase(ICardapioItemGateway cardapioItemGateway) {
+        return ObterCardapioItemPorIdUseCase.create(cardapioItemGateway);
+    }
+
+    @Bean
+    ListarCardapioItensPorRestauranteUseCase listarCardapioItensPorRestauranteUseCase(ICardapioItemGateway cardapioItemGateway) {
+        return ListarCardapioItensPorRestauranteUseCase.create(cardapioItemGateway);
+    }
+
+    @Bean
+    ListarTodosCardapioItensUseCase listarTodosCardapioItensUseCase(ICardapioItemGateway cardapioItemGateway) {
+        return ListarTodosCardapioItensUseCase.create(cardapioItemGateway);
+    }
+
+    @Bean
+    AtualizarCardapioItemUseCase atualizarCardapioItemUseCase(
+            ICardapioItemGateway cardapioItemGateway,
+            IRestauranteGateway restauranteGateway,
+            IAuthenticationGateway authenticationGateway,
+            IUsuarioGateway usuarioGateway) {
+        return AtualizarCardapioItemUseCase.create(cardapioItemGateway, restauranteGateway, authenticationGateway, usuarioGateway);
+    }
+
+    @Bean
+    DeletarCardapioItemUseCase deletarCardapioItemUseCase(
+            ICardapioItemGateway cardapioItemGateway,
+            IRestauranteGateway restauranteGateway,
+            IAuthenticationGateway authenticationGateway,
+            IUsuarioGateway usuarioGateway) {
+        return DeletarCardapioItemUseCase.create(cardapioItemGateway, restauranteGateway, authenticationGateway, usuarioGateway);
     }
 
     @Bean
@@ -74,6 +125,14 @@ public class UseCaseConfig {
             IUsuarioGateway usuarioGateway,
             IAuthenticationGateway authenticationGateway) {
         return AtualizarUsuarioUseCase.create(usuarioGateway, authenticationGateway);
+    }
+
+    @Bean
+    AssociarTipoDoUsuarioUseCase atualizarTipoDoUsuarioUseCase(
+            IUsuarioGateway usuarioGateway,
+            ITipoUsuarioGateway tipoUsuarioGateway,
+            IAuthenticationGateway authenticationGateway) {
+        return AssociarTipoDoUsuarioUseCase.create(usuarioGateway, tipoUsuarioGateway, authenticationGateway);
     }
 
     @Bean
