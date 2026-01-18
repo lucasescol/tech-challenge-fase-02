@@ -81,6 +81,14 @@ public class JpaUsuarioGateway implements IUsuarioGateway {
     }
 
     @Override
+    public List<Usuario> buscarTodos() {
+        List<UsuarioEntity> entities = usuarioRepository.findAll();
+        return entities.stream()
+            .map(UsuarioMapper::toDomain)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Usuario> buscarPorNome(String nome) {
         List<UsuarioEntity> entities = usuarioRepository.findByNomeContainingIgnoreCase(nome);
         return entities.stream()

@@ -24,6 +24,7 @@ import br.com.fiap.core.usecases.usuario.AtualizarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.BuscarUsuariosPorNomeUseCase;
 import br.com.fiap.core.usecases.usuario.CadastrarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.ExcluirUsuarioUseCase;
+import br.com.fiap.core.usecases.usuario.ListarTodosUsuariosUseCase;
 import br.com.fiap.core.usecases.usuario.TrocarSenhaUseCase;
 
 @Configuration
@@ -100,6 +101,11 @@ public class UseCaseConfig {
     @Bean
     BuscarUsuariosPorNomeUseCase buscarUsuariosPorNomeUseCase(IUsuarioGateway usuarioGateway) {
         return BuscarUsuariosPorNomeUseCase.create(usuarioGateway);
+    }
+
+    @Bean
+    ListarTodosUsuariosUseCase listarTodosUsuariosUseCase(IUsuarioGateway usuarioGateway) {
+        return ListarTodosUsuariosUseCase.create(usuarioGateway);
     }
 
     @Bean

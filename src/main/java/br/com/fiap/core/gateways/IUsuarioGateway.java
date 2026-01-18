@@ -10,6 +10,7 @@ public interface IUsuarioGateway {
     Usuario atualizar(Long id, Usuario usuario);
     void excluir(Long id);
     void trocarSenha(Long id, String novaSenha);
+    List<Usuario> buscarTodos();
     List<Usuario> buscarPorNome(String nome);
     Optional<Usuario> buscarPorId(Long id);
     Optional<Usuario> buscarPorLogin(String login);

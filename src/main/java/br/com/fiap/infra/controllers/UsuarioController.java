@@ -21,6 +21,7 @@ import br.com.fiap.core.usecases.usuario.AtualizarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.BuscarUsuariosPorNomeUseCase;
 import br.com.fiap.core.usecases.usuario.CadastrarUsuarioUseCase;
 import br.com.fiap.core.usecases.usuario.ExcluirUsuarioUseCase;
+import br.com.fiap.core.usecases.usuario.ListarTodosUsuariosUseCase;
 import br.com.fiap.core.usecases.usuario.TrocarSenhaUseCase;
 import br.com.fiap.infra.dto.AtualizarUsuarioDTO;
 import br.com.fiap.infra.dto.NovoUsuarioDTO;
@@ -45,18 +46,21 @@ public class UsuarioController {
     private final ExcluirUsuarioUseCase excluirUsuarioUseCase;
     private final TrocarSenhaUseCase trocarSenhaUseCase;
     private final BuscarUsuariosPorNomeUseCase buscarUsuariosPorNomeUseCase;
+    private final ListarTodosUsuariosUseCase listarTodosUsuariosUseCase;
     
     public UsuarioController(
             CadastrarUsuarioUseCase cadastrarUsuarioUseCase,
             AtualizarUsuarioUseCase atualizarUsuarioUseCase,
             ExcluirUsuarioUseCase excluirUsuarioUseCase,
             TrocarSenhaUseCase trocarSenhaUseCase,
-            BuscarUsuariosPorNomeUseCase buscarUsuariosPorNomeUseCase) {
+            BuscarUsuariosPorNomeUseCase buscarUsuariosPorNomeUseCase,
+            ListarTodosUsuariosUseCase listarTodosUsuariosUseCase) {
         this.cadastrarUsuarioUseCase = cadastrarUsuarioUseCase;
         this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
         this.excluirUsuarioUseCase = excluirUsuarioUseCase;
         this.trocarSenhaUseCase = trocarSenhaUseCase;
         this.buscarUsuariosPorNomeUseCase = buscarUsuariosPorNomeUseCase;
+        this.listarTodosUsuariosUseCase = listarTodosUsuariosUseCase;
     }
     
     @PostMapping
@@ -218,6 +222,36 @@ public class UsuarioController {
             @RequestParam(required = false, defaultValue = "") String nome) {
         
         List<BuscarUsuariosPorNomeUseCase.OutputModel> outputs = buscarUsuariosPorNomeUseCase.execute(nome);
+        
+        List<UsuarioResponseDTO> response = outputs.stream()
+            .map(output -> new UsuarioResponseDTO(
+                output.id(),
+                output.nome(),
+                output.email(),
+                output.login(),
+                output.endereco(),
+                output.tipoUsuario()
+            ))
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/todos")
+    @SecurityRequirement(name = "bearer-jwt")
+    @Operation(
+        summary = "Listar todos os usuários",
+        description = "**Requer autenticação JWT**\n\n" +
+                "Retorna a lista completa de todos os usuários cadastrados no sistema."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado",
+            content = @Content)
+    })
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
+        
+        List<ListarTodosUsuariosUseCase.OutputModel> outputs = listarTodosUsuariosUseCase.execute();
         
         List<UsuarioResponseDTO> response = outputs.stream()
             .map(output -> new UsuarioResponseDTO(

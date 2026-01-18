@@ -8,8 +8,8 @@ SELECT 'CLIENTE', 'Cliente comum do sistema'
 WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'CLIENTE');
 
 INSERT INTO tipo_usuario (nome, descricao) 
-SELECT 'RESTAURANTE', 'Dono de restaurante' 
-WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'RESTAURANTE');
+SELECT 'DONO_RESTAURANTE', 'Dono de restaurante' 
+WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'DONO_RESTAURANTE');
 
 -- Inserir endereço do administrador (apenas se não existir)
 INSERT INTO enderecos (logradouro, numero, complemento, bairro, cidade, estado, cep) 

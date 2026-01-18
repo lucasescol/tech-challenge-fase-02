@@ -25,7 +25,7 @@ public class AuthenticationGateway implements IAuthenticationGateway {
     
     @Override
     public boolean isAdministrador() {
-        return hasRole("ADMINISTRADOR");
+        return hasRole("ADMIN");
     }
     
     @Override
